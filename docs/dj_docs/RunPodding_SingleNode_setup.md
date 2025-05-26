@@ -79,12 +79,15 @@ RunPod Pytorch 2.4.0  (by default it pickes 2.2.1) OR 2.8 for Blackwell cards.
    source swift-env/bin/activate
 ```
 
-3. Copy and run the setup script (`setup_dj.sh`) to install ms-swift and other dependencies:
+3. Clone the ms-swift fork repository:
 ```bash
-   # Assuming the setup script is in your local machine's current directory
-   # You may need to adjust the source path if the script is elsewhere
-   scp -i ~/.ssh/my_runpod_key -P <SSH_PORT> ./setup_dj.sh root@<POD_IP_ADDRESS>:/workspace/
    cd /workspace
+   git clone https://github.com/the-laughing-monkey/ms-swift.git
+```
+
+4. Navigate to the scripts directory within the cloned repository and run the setup script (`setup_dj.sh`) to install ms-swift and other dependencies:
+```bash
+   cd /workspace/ms-swift/scripts
    bash ./setup_dj.sh
 ```
 ---
@@ -131,19 +134,20 @@ ms-swift supports various datasets and has its own format and preparation method
 2. Download and prepare the geo3k dataset:
 
 ```bash
-    cd /workspace/verl
+    cd /workspace/ms-swift
     python3 examples/downloaders/download_geo3k.py --root_dir /data/datasets/geo3k
 ```
 
 3. Process the geo3k dataset:
 ```bash
+    cd /workspace/ms-swift
     python3 examples/data_preprocess/geo3k.py --local_dir /data/datasets/geo3k
 ```
 
 
 4. Download the Qwen2.5-VL-3B model:
 ```bash
-    cd /workspace/verl
+    cd /workspace/ms-swift
     python3 examples/downloaders/download_model.py --model_name Qwen/Qwen2.5-VL-3B-Instruct
 ```
 
@@ -270,80 +274,5 @@ ray start --head ... # or ray start --address=...
 
 You should apply this command in the terminal session *before* executing the Ray start command on both head and worker nodes.
 
-### 12. Prepare Your Dataset for ms-swift
 
-Before running a training job, you'll need to prepare your dataset in a format compatible with verl. verl uses dataset configurations specified within its training configuration files (often YAML). Reward functions are also integrated within verl's framework rather arrested than requiring a separate remote server.
-
-verl supports multimodal datasets. The Qwen2.5-VL-32B model you are using is a visual language model, so you will likely need a multimodal dataset like MathV60K or geo3k.
-
-**Option 1: Using the MathV60K Dataset**
-
-If you plan to use the MathV60K dataset (as covered in the original OpenRLHF-M setup), follow these steps:
-
-1. Create the datasets directory:
-```bash
-    mkdir -p /data/datasets
-```
-
-2. Download and prepare the MathV60K dataset:
-
-On the head node:
-```bash
-    cd /workspace/verl
-    python3 examples/scripts/downloaders/download_mathv60k.py --root_dir /data/datasets/VerMulti
-```
-
-This script will download and prepare the MathV60K dataset in `/data/datasets/VerMulti`.
-
-**Option 2: Using the geo3k Dataset (for replicating ms-swift examples)**
-
-If you want to run examples that use the geo3k dataset (e.g., the Qwen2.5-VL-7B GRPO example), you can use the provided downloader script.
-
-1. Navigate to the ms-swift examples downloaders directory:
-```bash
-    cd /workspace/verl/examples/downloaders
-```
-
-2. Run the geo3k downloader script:
-```bash
-    python3 download_geo3k.py --root_dir /data/datasets/geo3k
-```
-
-This script will download the geo3k dataset files into `/data/datasets/geo3k/`. The train file will be located at `/data/datasets/geo3k/train.parquet` and the test file at `/data/datasets/geo3k/test.parquet`.
-
-Refer to the ms-swift documentation on [Data Preparation](https://swift.readthedocs.io/en/latest/data/data_prep.html) and [Implement Reward Function for Dataset](https://swift.readthedocs.io/en/latest/data/reward_function.html) for detailed instructions on preparing your specific dataset and integrating your reward function. Ensure the `data.train_files` and `data.val_files` parameters in your training script point to the correct dataset paths.
-
-### 15. Run Your ms-swift Training Job
-
-Unlike OpenRLHF-M, ms-swift typically uses YAML configuration files to manage training parameters. While a base configuration is defined in a YAML file, you can override specific settings directly from the command line using a `parameter.subparameter=value` syntax.
-
-Here's an example command to launch a ms-swift training job using `ms-swift.trainer.main_ppo`, adapting settings from the previous OpenRLHF-M script. Note that this assumes you have prepared your dataset and integrated your reward function according to the ms-swift documentation ([Data Preparation](https://swift.readthedocs.io/en/latest/data/data_prep.html), [Implement Reward Function for Dataset](https://swift.readthedocs.io/en/latest/data/reward_function.html)). You will also likely need a base YAML configuration file which this command will override.
-
-```bash
-python3 -m ms-swift.trainer.main_ppo \
-    actor_rollout_ref.model.path=${PRETRAIN_MODEL_PATH} \
-    data.train_files=${DATASET_PATH} \
-    trainer.n_gpus_per_node=8 \
-    trainer.logger=['console','wandb'] \
-    trainer.project_name='your_ms-swift_project' \
-    trainer.experiment_name='${MODEL_NAME}' \
-    # Add other overrides as needed, referring to ms-swift documentation and example YAMLs
-    # Example overrides for batch sizes, learning rate, etc. might look like:
-    # data.train_batch_size=128 \
-    # actor_rollout_ref.actor.optim.lr=5e-7 \
-    # algorithm.use_kl_loss=True \
-    # algorithm.kl_loss_coef=1e-3 \
-    # trainer.save_freq=5 \
-    $@
-```
-
-**Explanation of key overrides:**
-
-*   `actor_rollout_ref.model.path`: Specifies the path to your pre-trained model (e.g., Qwen/Qwen2.5-VL-32B-Instruct).
-*   `data.train_files`: Points to your prepared training dataset file(s).
-*   `trainer.n_gpus_per_node`: Sets the number of GPUs to use per node.
-*   `trainer.logger`: Configures logging (e.g., to console and WandB).
-*   `trainer.project_name` and `trainer.experiment_name`: Sets the project and experiment names for WandB logging.
-
-Consult the ms-swift documentation and the example scripts in the `examples` directory for the full range of configuration options and how to structure your base YAML file.
 

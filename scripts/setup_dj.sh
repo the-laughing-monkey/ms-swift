@@ -4,9 +4,19 @@
 # Assumes you are in the activated virtual environment.
 # This script adapts instructions from sections 4, 5, and 6 of the deployment guide for ms-swift.
 
+#############################
+# Define Repository Root for ms-swift Fork
+#############################
+
+# Use an absolute path for robustness, assuming /workspace is the intended base.
+SWIFT_REPO_ROOT="/workspace/ms-swift"
+FORK_URL="https://github.com/the-laughing-monkey/ms-swift"
+
+#############################
+# Set Working Root
+#############################
 
 WORKING_DIR="$(pwd)" # Use current working directory
-# No clone directory needed for ms-swift pip install
 
 #############################
 # Set maximum number of open file descriptors
@@ -35,12 +45,25 @@ pip install --no-cache-dir torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --
 echo "Core python package and PyTorch installation complete."
 
 #############################
-# 2. Install ms-swift and Core Requirements
+# 2. Clone ms-swift Fork and Install
 #############################
 
-# Install ms-swift
-echo "Installing ms-swift"
-pip install ms-swift -U
+# Remove existing ms-swift directory if it exists from previous runs
+if [ -d "$SWIFT_REPO_ROOT" ]; then
+    echo "Removing existing ms-swift repository: $SWIFT_REPO_ROOT"
+    rm -rf "$SWIFT_REPO_ROOT"
+fi
+
+echo "Cloning ms-swift fork repository into $SWIFT_REPO_ROOT"
+git clone "$FORK_URL" "$SWIFT_REPO_ROOT"
+
+echo "Changing directory to ms-swift repository: $SWIFT_REPO_ROOT"
+cd "$SWIFT_REPO_ROOT"
+
+# Install ms-swift in editable mode with default extra (excluding vllm and sglang dependencies already installed)
+echo "Installing ms-swift with default extra"
+pip install -e .[default]
+
 
 # Install vLLM and SGLang explicitly with specified versions (if needed by ms-swift or your workflow)
 echo "Installing vLLM"
