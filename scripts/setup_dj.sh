@@ -33,7 +33,7 @@ ulimit -n 65536
 PACKAGES="pip wheel packaging setuptools huggingface_hub qwen-vl-utils sgl-kernel mathruler"
 
 echo "Upgrading pip"
-pip install --upgrade pip
+python3 -m pip install --upgrade pip
 
 echo "Installing core python packages: $PACKAGES"
 pip install $PACKAGES
@@ -69,6 +69,9 @@ cd "$SWIFT_REPO_ROOT"
 echo "Installing ms-swift with default extra"
 pip install -e .[default]
 
+
+echo "Installing deepspeed"
+pip install deepspeed
 
 # Install vLLM and SGLang explicitly with specified versions (if needed by ms-swift or your workflow)
 echo "Installing vLLM"
