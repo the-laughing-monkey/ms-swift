@@ -87,8 +87,8 @@ RunPod Pytorch 2.4.0  (by default it pickes 2.2.1) OR 2.8 for Blackwell cards.
 
 4. Navigate to the scripts directory within the cloned repository and run the setup script (`setup_dj.sh`) to install ms-swift and other dependencies:
 ```bash
-   cd /workspace/ms-swift/scripts
-   bash ./setup_dj.sh
+   cd /workspace/ms-swift/
+   bash ./scripts/setup_dj.sh
 ```
 ---
 
@@ -122,35 +122,32 @@ This is a critical step because:
 
 ---
 
-### 7. Download and Prepare Your Dataset for ms-swift
+### 7. Download Your Model and Dataset for ms-swift
 
 ms-swift supports various datasets and has its own format and preparation methods. Refer to the [ms-swift documentation on Supported Models and Datasets](https://swift.readthedocs.io/en/latest/Instruction/Supported-Models-and-Datasets.html) and [Custom Dataset](https://swift.readthedocs.io/en/latest/Customization/Custom-Dataset.html) for detailed instructions on preparing your specific dataset.
 
-1. Create the datasets directory:
+1. Navigate to the ms-swift repository directory:
+```bash
+    cd /workspace/ms-swift
+```
+
+2. Download the Qwen2.5-VL-3B model using the provided downloader script:
+```bash
+    python3 examples/downloaders/download_model.py --model_name Qwen/Qwen2.5-VL-3B-Instruct --root_dir /data/cache-models/huggingface/hub
+```
+
+3. Create the datasets directory:
 ```bash
     mkdir -p /data/datasets
 ```
 
-2. Download and prepare the geo3k dataset:
+4. Download the `lmms-lab/multimodal-open-r1-8k-verified` dataset using the generic downloader script:
 
 ```bash
-    cd /workspace/ms-swift
-    python3 examples/downloaders/download_geo3k.py --root_dir /data/datasets/geo3k
+    python3 examples/downloaders/download_dataset.py --dataset_name lmms-lab/multimodal-open-r1-8k-verified --root_dir /data/datasets/lmms-lab/multimodal-open-r1-8k-verified
 ```
 
-3. Process the geo3k dataset:
-```bash
-    cd /workspace/ms-swift
-    python3 examples/data_preprocess/geo3k.py --local_dir /data/datasets/geo3k
-```
-
-
-4. Download the Qwen2.5-VL-3B model:
-```bash
-    cd /workspace/ms-swift
-    python3 examples/downloaders/download_model.py --model_name Qwen/Qwen2.5-VL-3B-Instruct
-```
-
+---
 
 ### 8. Set your NCCL environment variables to use the eth1 interface:
 
