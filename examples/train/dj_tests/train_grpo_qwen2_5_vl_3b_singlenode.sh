@@ -15,8 +15,7 @@ swift rlhf \
   --vllm_gpu_memory_utilization 0.5 \
   --vllm_max_model_len 8192 \
   --vllm_tensor_parallel_size 2 \
-  --dataset multimodal-open-r1-8k-verified-hf \
-  --custom_dataset_info examples/train/dj_tests/custom_dataset_info.json \
+  --dataset /data/datasets/lmms-lab/multimodal-open-r1-8k-verified \
   --external_plugins examples/train/grpo/plugin/plugin.py \
   --reward_funcs external_r1v_acc format \
   --reward_weights 1 0.1 \
