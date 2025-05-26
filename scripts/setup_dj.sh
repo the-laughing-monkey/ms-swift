@@ -48,6 +48,10 @@ echo "Core python package and PyTorch installation complete."
 # 2. Clone ms-swift Fork and Install
 #############################
 
+# Change to the parent directory before removing the repository
+echo "Changing directory to /workspace before removing and cloning the repository"
+cd /workspace
+
 # Remove existing ms-swift directory if it exists from previous runs
 if [ -d "$SWIFT_REPO_ROOT" ]; then
     echo "Removing existing ms-swift repository: $SWIFT_REPO_ROOT"
@@ -57,6 +61,7 @@ fi
 echo "Cloning ms-swift fork repository into $SWIFT_REPO_ROOT"
 git clone "$FORK_URL" "$SWIFT_REPO_ROOT"
 
+# Change back into the cloned ms-swift repository for installation
 echo "Changing directory to ms-swift repository: $SWIFT_REPO_ROOT"
 cd "$SWIFT_REPO_ROOT"
 
