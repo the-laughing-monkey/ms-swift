@@ -6,7 +6,7 @@ set -ex
 export CUDA_VISIBLE_DEVICES=0,1 # Use 2 GPUs
 NPROC_PER_NODE=2
 
-swift rlhf \
+deepspeed --num_gpus ${NPROC_PER_NODE} swift rlhf \
   --rlhf_type grpo \
   --model Qwen/Qwen2.5-VL-3B-Instruct \
   --train_type lora \
